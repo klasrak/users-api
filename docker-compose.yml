@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+    users-api:
+        container_name: users-api
+        build:
+            context: .
+            target: dev
+        image: users-api
+        ports:
+            - "8080:8080"
+            - "2345:2345"
+        env_file: .env
+        volumes:
+            - .:/usr/src/users-api:rw,delegated
