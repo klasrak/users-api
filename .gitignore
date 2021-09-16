@@ -139,3 +139,6 @@ modules.xml
 # Debug
 __debug_bin
 tmp
+
+# Postgres volume
+.dbdata
