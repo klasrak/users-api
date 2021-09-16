@@ -1,6 +1,8 @@
 package utils
 
-import "time"
+import (
+	"time"
+)
 
 // TimeBetween calculates the time between two dates
 func TimeBetween(a, b time.Time) (year, month, day, hour, min, sec int) {
