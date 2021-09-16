@@ -1,4 +1,4 @@
-.PHONY: migration-create migrate-up migrate-down migrate-force prepare-db init
+.PHONY: migration-create migrate-up migrate-down migrate-force prepare init
 
 PWD = $(shell pwd)
 PORT = 5432
@@ -18,7 +18,9 @@ migrate-down:
 migrate-force:
 	migrate -source file://$(PWD)/migrations -database postgres://postgres:123456@localhost:$(PORT)/users-api?sslmode=disable force $(VERSION)
 
-prepare-db:
+prepare:
+	cp .env.example .env && \
+	go mod download && go mod verify && \
 	docker-compose up -d postgres && \
 	$(MAKE) migrate-up N= && \
 	docker-compose down
