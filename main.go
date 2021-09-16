@@ -19,7 +19,14 @@ func main() {
 	err := godotenv.Load()
 
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file\n")
+	}
+
+	// initialize database sources
+	ds, err := initDatabase()
+
+	if err != nil {
+		log.Fatalf("Unable to initialize data sources: %v\n", err)
 	}
 
 	router := gin.Default()
@@ -52,6 +59,11 @@ func main() {
 	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// shutdown database sources
+	if err := ds.close(); err != nil {
+		log.Fatalf("A problem occurred gracefully shutting down data sources: %v\n", err)
+	}
 
 	// Shutdown server
 	log.Println("Shutting down server...")
