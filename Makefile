@@ -19,10 +19,11 @@ migrate-force:
 	migrate -source file://$(PWD)/migrations -database postgres://postgres:123456@localhost:$(PORT)/users-api?sslmode=disable force $(VERSION)
 
 prepare:
-	cp .env.example .env && \
 	go mod download && go mod verify && \
 	docker-compose up -d postgres && \
+	./docker/entrypoint.sh 127.0.0.1:5432 && \
 	$(MAKE) migrate-up N= && \
+	sudo chown -R $(shell echo ${USER}):docker ./.dbdata && \
 	docker-compose down
 
 init:
