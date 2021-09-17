@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	model "github.com/klasrak/users-api/models"
+	"github.com/klasrak/users-api/rerrors"
 	_ "github.com/lib/pq"
 )
 
@@ -16,7 +17,15 @@ type UserRepository struct {
 
 // GetAll returns all users or error
 func (r *UserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
-	return nil, nil
+	users := []*model.User{}
+
+	query := "SELECT * FROM users;"
+
+	if err := r.DB.Get(users, query); err != nil {
+		return users, rerrors.NewNotFound("users", "")
+	}
+
+	return users, nil
 }
 
 // GetByID fetches user by ID or return error

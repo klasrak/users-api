@@ -87,9 +87,17 @@ func NewInternal() *Error {
 
 // NewNotFound to create an error for 404
 func NewNotFound(name string, value string) *Error {
+	var message string
+
+	if name != "" && value == "" {
+		message = fmt.Sprintf("resource: %v not found", name)
+	} else {
+		message = fmt.Sprintf("resource: %v with value: %v not found", name, value)
+	}
+
 	return &Error{
 		Type:    NotFound,
-		Message: fmt.Sprintf("resource: %v with value: %v not found", name, value),
+		Message: message,
 	}
 }
 
