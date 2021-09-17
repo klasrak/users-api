@@ -1,4 +1,4 @@
-package repository
+package service
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	model "github.com/klasrak/users-api/models"
 )
 
-// UserRepository defines methods the service layer expects
 type UserRepository interface {
 	GetAll(ctx context.Context) ([]*model.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*model.User, error)
