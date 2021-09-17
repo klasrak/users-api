@@ -16,13 +16,16 @@ type UserRepository struct {
 }
 
 // GetAll returns all users or error
-func (r *UserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
-	users := []*model.User{}
+func (r *UserRepository) GetAll(ctx context.Context) ([]model.User, error) {
+	users := []model.User{}
 
 	query := "SELECT * FROM users;"
 
-	if err := r.DB.Get(users, query); err != nil {
-		return users, rerrors.NewNotFound("users", "")
+	// rows, err := r.DB.Query(query)
+
+	if err := r.DB.SelectContext(ctx, &users, query); err != nil {
+
+		return users, rerrors.NewInternal()
 	}
 
 	return users, nil
@@ -30,7 +33,15 @@ func (r *UserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
 
 // GetByID fetches user by ID or return error
 func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	return nil, nil
+	user := &model.User{}
+
+	query := "SELECT * FROM users WHERE id=$1;"
+
+	if err := r.DB.Get(user, query, id); err != nil {
+		return user, rerrors.NewNotFound("id", id.String())
+	}
+
+	return user, nil
 }
 
 // Create a user

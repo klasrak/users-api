@@ -9,7 +9,7 @@ import (
 
 // UserRepository representes the user repository implementation
 type UserRepository interface {
-	GetAll(ctx context.Context) ([]*model.User, error)
+	GetAll(ctx context.Context) ([]model.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*model.User, error)
 	Create(ctx context.Context, u *model.User) error
 	Update(ctx context.Context, u *model.User) error

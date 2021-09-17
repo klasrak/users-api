@@ -21,6 +21,7 @@ func (router *Router) Initialize(c *Container) {
 	usersGroup := v1Group.Group("/users")
 
 	usersGroup.GET("", h.GetAll)
+	usersGroup.GET("/:id", h.GetByID)
 
 	// ####### inject implementation of gin engine
 	router.r = r
