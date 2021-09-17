@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -29,11 +28,19 @@ func main() {
 		log.Fatalf("Unable to initialize data sources: %v\n", err)
 	}
 
-	router := gin.Default()
+	c := &Container{}
+
+	if err := c.Initialize(ds); err != nil {
+		log.Fatalf("unable to initialize services via dependency injection: %v\n", err)
+	}
+
+	router := Router{}
+
+	router.Initialize(c)
 
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: router,
+		Handler: router.r,
 	}
 
 	// Graceful server shutdown - https://github.com/gin-gonic/examples/blob/master/graceful-shutdown/graceful-shutdown/notify-without-context/server.go

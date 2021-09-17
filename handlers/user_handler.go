@@ -8,7 +8,7 @@ import (
 	"github.com/klasrak/users-api/rerrors"
 )
 
-func (h *Handler) GetAll(c gin.Context) {
+func (h *Handler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	users, err := h.UserService.GetAll(ctx)
