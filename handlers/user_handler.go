@@ -8,6 +8,13 @@ import (
 	"github.com/klasrak/users-api/rerrors"
 )
 
+// GetAll godoc
+// @Summary Get all users
+// @Description Get all users
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []model.User
+// @Router /api/v1/users [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -33,6 +40,15 @@ func (h *Handler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// GetByID godoc
+// @Summary Get a single user by ID
+// @Description Get a single user by ID
+// @ID string
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Success 200 {object} model.User
+// @Router /api/v1/users/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
