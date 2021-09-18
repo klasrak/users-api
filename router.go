@@ -33,9 +33,6 @@ func (router *Router) Initialize(c *Container) {
 	usersGroup.GET("", h.GetAll)
 	usersGroup.GET("/:id", h.GetByID)
 
-	// ### DOCS ###
-	// generateSwaggerDocs(v1Group)
-
 	// ####### inject implementation of gin engine
 	router.r = r
 }
