@@ -134,5 +134,49 @@ func TestUserService(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, user, us)
 		})
+
+		t.Run("Error invalid id", func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.GetByID(ctx, "invalid_id")
+
+			mockUserRepository.AssertNotCalled(t, "GetByID")
+
+			assert.Nil(t, us)
+			assert.Error(t, err)
+			assert.Equal(t, err, rerrors.NewBadRequest("invalid id"))
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Error not found", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			user := &model.User{}
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), uid).Return(user, rerrors.NewNotFound("id", uid.String()))
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.GetByID(ctx, uid.String())
+
+			mockUserRepository.AssertNumberOfCalls(t, "GetByID", 1)
+			mockUserRepository.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), uid)
+
+			assert.Error(t, err)
+			assert.Equal(t, err, rerrors.NewNotFound("id", uid.String()))
+			assert.Equal(t, user, us)
+		})
 	})
 }
