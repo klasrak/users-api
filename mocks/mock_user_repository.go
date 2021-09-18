@@ -15,7 +15,7 @@ type MockUserRepository struct {
 
 // GetAll is a mock for UserRepository GetAll
 func (m *MockUserRepository) GetAll(ctx context.Context, name string) ([]model.User, error) {
-	ret := m.Called(ctx)
+	ret := m.Called(ctx, name)
 
 	var r0 []model.User
 
