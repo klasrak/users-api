@@ -15,12 +15,12 @@ type Container struct {
 }
 
 // Initialize implementation of service and repository layers
-func (c *Container) Initialize(d *databaseSources) error {
+func (c *Container) Initialize(ds *DatabaseSources) error {
 	log.Println("Injecting dependencies")
 
 	// container for initialize repositories
 	r, err := repository.CreateRepository(&repository.Options{
-		DB: d.DB,
+		DB: ds.DB,
 	})
 
 	if err != nil {

@@ -36,7 +36,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	uid, _ := uuid.FromBytes([]byte(id))
+	uid, _ := uuid.Parse(id)
 
 	user, err := h.UserService.GetByID(ctx, uid)
 

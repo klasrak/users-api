@@ -1,6 +1,9 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+)
 
 // Repository combines all repositories
 type Repository struct {

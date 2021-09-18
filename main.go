@@ -22,7 +22,11 @@ func main() {
 	}
 
 	// initialize database sources
-	ds, err := initDatabase()
+	ds := &DatabaseSources{}
+
+	if err := ds.Initialize(); err != nil {
+		log.Fatalf("unable to initialize database sources: %v\n", err)
+	}
 
 	if err != nil {
 		log.Fatalf("Unable to initialize data sources: %v\n", err)
@@ -68,7 +72,7 @@ func main() {
 	defer cancel()
 
 	// shutdown database sources
-	if err := ds.close(); err != nil {
+	if err := ds.Close(); err != nil {
 		log.Fatalf("A problem occurred gracefully shutting down data sources: %v\n", err)
 	}
 
