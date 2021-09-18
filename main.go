@@ -18,7 +18,7 @@ import (
 
 // @license.name MIT
 
-// @BasePath /v1
+// @BasePath /api/v1
 func main() {
 	log.Println("Starting server...")
 

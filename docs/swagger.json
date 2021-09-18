@@ -1,10 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a Users crud server.",
+        "title": "Users API",
+        "contact": {},
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
     },
+    "basePath": "/api/v1",
     "paths": {
-        "/api/v1/users": {
+        "/users": {
             "get": {
                 "description": "Get all users",
                 "consumes": [
@@ -14,6 +21,14 @@
                     "application/json"
                 ],
                 "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search by name",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -27,7 +42,7 @@
                 }
             }
         },
-        "/api/v1/users/{id}": {
+        "/users/{id}": {
             "get": {
                 "description": "Get a single user by ID",
                 "consumes": [

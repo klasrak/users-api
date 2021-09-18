@@ -13,8 +13,9 @@ import (
 // @Description Get all users
 // @Accept  json
 // @Produce  json
+// @Param name query string false "search by name"
 // @Success 200 {object} []model.User
-// @Router /api/v1/users [get]
+// @Router /users [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -48,7 +49,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Produce  json
 // @Param id path string true "User ID"
 // @Success 200 {object} model.User
-// @Router /api/v1/users/{id} [get]
+// @Router /users/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
@@ -56,7 +57,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 	user, err := h.UserService.GetByID(ctx, id)
 
 	if err != nil {
-		log.Printf("Failed to user: %v\n", err.Error())
+		log.Printf("Failed to get user: %v\n", err.Error())
 
 		c.JSON(rerrors.Status(err), gin.H{
 			"error": err,

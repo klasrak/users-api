@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   model.User:
     properties:
@@ -14,12 +15,22 @@ definitions:
     type: object
 info:
   contact: {}
+  description: This is a Users crud server.
+  license:
+    name: MIT
+  title: Users API
+  version: "1.0"
 paths:
-  /api/v1/users:
+  /users:
     get:
       consumes:
       - application/json
       description: Get all users
+      parameters:
+      - description: search by name
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -30,7 +41,7 @@ paths:
               $ref: '#/definitions/model.User'
             type: array
       summary: Get all users
-  /api/v1/users/{id}:
+  /users/{id}:
     get:
       consumes:
       - application/json
