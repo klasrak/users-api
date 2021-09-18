@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -16,12 +18,16 @@ type UserRepository struct {
 }
 
 // GetAll returns all users or error
-func (r *UserRepository) GetAll(ctx context.Context) ([]model.User, error) {
+func (r *UserRepository) GetAll(ctx context.Context, name string) ([]model.User, error) {
 	users := []model.User{}
 
-	query := "SELECT * FROM users;"
+	query := "SELECT * FROM users u %s;"
 
-	// rows, err := r.DB.Query(query)
+	if name != "" {
+		query = fmt.Sprintf(query, fmt.Sprintf(`WHERE u.name LIKE '%%%s%%' `, name))
+	} else {
+		query = strings.Trim(fmt.Sprintf(query, ""), "")
+	}
 
 	if err := r.DB.SelectContext(ctx, &users, query); err != nil {
 

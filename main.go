@@ -12,6 +12,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title Users API
+// @version 1.0
+// @description This is a Users crud server.
+
+// @license.name MIT
+
+// @BasePath /v1
 func main() {
 	log.Println("Starting server...")
 
@@ -41,6 +48,9 @@ func main() {
 	router := Router{}
 
 	router.Initialize(c)
+
+	// generate swagger docs
+	generateSwaggerDocs(&router.r.RouterGroup)
 
 	srv := &http.Server{
 		Addr:    ":8080",

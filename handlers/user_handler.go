@@ -11,7 +11,9 @@ import (
 func (h *Handler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	users, err := h.UserService.GetAll(ctx)
+	name := c.Query("name")
+
+	users, err := h.UserService.GetAll(ctx, name)
 
 	if err != nil {
 		log.Printf("Failed to get all users: %v\n", err.Error())

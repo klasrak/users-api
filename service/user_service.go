@@ -14,8 +14,8 @@ type UserService struct {
 }
 
 // GetAll calls repository GetAll and returns
-func (s *UserService) GetAll(ctx context.Context) ([]model.User, error) {
-	return s.UserRepository.GetAll(ctx)
+func (s *UserService) GetAll(ctx context.Context, name string) ([]model.User, error) {
+	return s.UserRepository.GetAll(ctx, name)
 }
 
 func (s *UserService) GetByID(ctx context.Context, id string) (*model.User, error) {
