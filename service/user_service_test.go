@@ -106,6 +106,33 @@ func TestUserService(t *testing.T) {
 	})
 
 	t.Run("GetByID", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
 
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "123.456.789-10",
+				BirthDate: time.Now(),
+			}
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), uid).Return(user, nil)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.GetByID(ctx, uid.String())
+
+			mockUserRepository.AssertNumberOfCalls(t, "GetByID", 1)
+			mockUserRepository.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), uid)
+
+			assert.NoError(t, err)
+			assert.Equal(t, user, us)
+		})
 	})
 }
