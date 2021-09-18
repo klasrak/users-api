@@ -1,4 +1,4 @@
-.PHONY: migration-create migrate-up migrate-down migrate-force prepare init
+.PHONY: migration-create migrate-up migrate-down migrate-force prepare create-docs init
 
 PWD = $(shell pwd)
 PORT = 5432
@@ -26,6 +26,9 @@ prepare:
 	$(MAKE) migrate-up N= && \
 	sudo chown -R $(shell echo ${USER}) ./.dbdata && \
 	docker-compose down
+
+create-docs:
+	swag init main.go;
 
 init:
 	docker-compose up
