@@ -14,13 +14,13 @@ type MockUserRepository struct {
 }
 
 // GetAll is a mock for UserRepository GetAll
-func (m *MockUserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
+func (m *MockUserRepository) GetAll(ctx context.Context, name string) ([]model.User, error) {
 	ret := m.Called(ctx)
 
-	var r0 []*model.User
+	var r0 []model.User
 
 	if ret.Get(0) != nil {
-		r0 = ret.Get(0).([]*model.User)
+		r0 = ret.Get(0).([]model.User)
 	}
 
 	var r1 error
