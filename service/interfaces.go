@@ -13,5 +13,5 @@ type UserRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*model.User, error)
 	Create(ctx context.Context, u *model.User) (*model.User, error)
 	Update(ctx context.Context, u *model.User) (*model.User, error)
-	Delete(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, id string) error
 }

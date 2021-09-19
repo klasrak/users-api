@@ -90,7 +90,7 @@ func (m *MockUserRepository) Update(ctx context.Context, u *model.User) (*model.
 }
 
 // Delete is a mock for UserRepository Delete
-func (m *MockUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (m *MockUserRepository) Delete(ctx context.Context, id string) error {
 	ret := m.Called(ctx, id)
 
 	var r0 error

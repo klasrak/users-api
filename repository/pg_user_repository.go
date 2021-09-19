@@ -104,6 +104,14 @@ func (r *UserRepository) Update(ctx context.Context, u *model.User) (*model.User
 }
 
 // Delete a user
-func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *UserRepository) Delete(ctx context.Context, id string) error {
+	query := "DELETE FROM users u WHERE u.id = $1;"
+
+	_, err := r.DB.ExecContext(ctx, query, id)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

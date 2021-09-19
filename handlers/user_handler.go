@@ -185,3 +185,42 @@ func (h *Handler) Update(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, user)
 }
+
+// Delete godoc
+// @Summary Delete user
+// @Description Delete user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Success 204
+// @Router /users/{id} [delete]
+func (h *Handler) Delete(c *gin.Context) {
+	id := c.Param("id")
+
+	if id == "" {
+		err := rerrors.NewBadRequest("missing user ID id")
+		log.Printf("missing user ID ID: %v\n", err)
+
+		c.JSON(err.Status(), gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	err := h.UserService.Delete(ctx, id)
+
+	if err != nil {
+		log.Printf("failed to create user: %v\n", err.Error())
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}

@@ -79,3 +79,8 @@ func (s *UserService) Update(ctx context.Context, id string, u *model.User) (*mo
 
 	return s.UserRepository.Update(ctx, u)
 }
+
+// Delete call repository Delete and returns
+func (s *UserService) Delete(ctx context.Context, id string) error {
+	return s.UserRepository.Delete(ctx, id)
+}
