@@ -92,6 +92,24 @@ paths:
       tags:
       - user
   /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: Delete user
+      tags:
+      - user
     get:
       consumes:
       - application/json

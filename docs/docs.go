@@ -161,6 +161,33 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    }
+                }
             }
         }
     },
