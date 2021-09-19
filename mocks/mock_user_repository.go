@@ -52,16 +52,22 @@ func (m *MockUserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.
 }
 
 // Create is a mock for UserRepository Create
-func (m *MockUserRepository) Create(ctx context.Context, u *model.User) error {
+func (m *MockUserRepository) Create(ctx context.Context, u *model.User) (*model.User, error) {
 	ret := m.Called(ctx, u)
 
-	var r0 error
+	var r0 *model.User
 
 	if ret.Get(0) != nil {
-		r0 = ret.Get(0).(error)
+		r0 = ret.Get(0).(*model.User)
 	}
 
-	return r0
+	var r1 error
+
+	if ret.Get(1) != nil {
+		r1 = ret.Get(1).(error)
+	}
+
+	return r0, r1
 }
 
 // Update is a mock for UserRepository Update

@@ -19,6 +19,7 @@ const (
 	Internal   Type = "INTERNAL"   // Server (500) and fallback errors
 	NotFound   Type = "NOTFOUND"   // For not finding resource
 	Forbidden  Type = "FORBIDDEN"  // The client has no access rights to the content so the server is refusing to respond
+	Conflict   Type = "CONFLICT"   // Already exists - 409
 )
 
 // Error holds a custom error for the application
@@ -49,6 +50,8 @@ func (e *Error) Status() int {
 		return http.StatusNotFound
 	case Forbidden:
 		return http.StatusForbidden
+	case Conflict:
+		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError
 	}
@@ -106,5 +109,13 @@ func NewForbidden(reason string) *Error {
 	return &Error{
 		Type:    Forbidden,
 		Message: fmt.Sprintf("Forbidden. Reason: %v", reason),
+	}
+}
+
+// NewConflict to create 409 erros
+func NewConflict(name string, value string) *Error {
+	return &Error{
+		Type:    Conflict,
+		Message: fmt.Sprintf("resource: %v not created: %v", name, value),
 	}
 }

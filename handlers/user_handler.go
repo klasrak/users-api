@@ -3,10 +3,19 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	model "github.com/klasrak/users-api/models"
 	"github.com/klasrak/users-api/rerrors"
 )
+
+type createPayload struct {
+	Name      string    `json:"name" binding:"required"`
+	Email     string    `json:"email" binding:"required,email"`
+	Cpf       string    `json:"cpf" binding:"required"`
+	Birthdate time.Time `json:"birthdate" binding:"required" time_format:"2006-01-02"`
+}
 
 // GetAll godoc
 // @Summary Get all users
@@ -34,7 +43,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 	}
 
 	if len(users) == 0 {
-		c.JSON(http.StatusNoContent, gin.H{})
+		c.JSON(http.StatusNoContent, nil)
 		return
 	}
 
@@ -67,4 +76,47 @@ func (h *Handler) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+// Create godoc
+// @Summary Create an user
+// @Description add user to database
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param user body createPayload true "Add user"
+// @Success 201
+// @Router /users [post]
+func (h *Handler) Create(c *gin.Context) {
+	var req createPayload
+
+	// Bind incoming json to struct and check for validation errors
+	ok := bindData(c, &req)
+
+	if !ok {
+		log.Println("failed to bind data")
+		return
+	}
+
+	u := &model.User{
+		Name:      req.Name,
+		Email:     req.Email,
+		Cpf:       req.Cpf,
+		BirthDate: req.Birthdate,
+	}
+
+	ctx := c.Request.Context()
+
+	user, err := h.UserService.Create(ctx, u)
+
+	if err != nil {
+		log.Printf("failed to create user: %v\n", err.Error())
+
+		c.JSON(rerrors.Status(err), gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, user)
 }

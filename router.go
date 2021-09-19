@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -24,16 +25,24 @@ func (router *Router) Initialize(c *Container) {
 	// Default gin engine instance
 	r := gin.Default()
 
+	// ####### MIDDLEWARES #######
+	// CORS
+	r.Use(cors.Default())
+
 	// ####### API V1 #######
 	v1Group := r.Group("/api/v1")
 
 	// ---- USERS RESOURCES /users ----
 	usersGroup := v1Group.Group("/users")
 
+	// ## GET ##
 	usersGroup.GET("", h.GetAll)
 	usersGroup.GET("/:id", h.GetByID)
 
-	// ####### inject implementation of gin engine
+	// ## POST ##
+	usersGroup.POST("", h.Create)
+
+	// ####### inject implementation of gin engine #######
 	router.r = r
 }
 

@@ -27,3 +27,7 @@ func (s *UserService) GetByID(ctx context.Context, id string) (*model.User, erro
 
 	return s.UserRepository.GetByID(ctx, uid)
 }
+
+func (s *UserService) Create(ctx context.Context, u *model.User) (*model.User, error) {
+	return s.UserRepository.Create(ctx, u)
+}

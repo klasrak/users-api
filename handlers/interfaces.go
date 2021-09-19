@@ -10,4 +10,5 @@ import (
 type UserService interface {
 	GetAll(ctx context.Context, name string) ([]model.User, error)
 	GetByID(ctx context.Context, id string) (*model.User, error)
+	Create(ctx context.Context, u *model.User) (*model.User, error)
 }

@@ -1,5 +1,21 @@
 basePath: /api/v1
 definitions:
+  handlers.createPayload:
+    properties:
+      birthdate:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - birthdate
+    - cpf
+    - email
+    - name
+    type: object
   model.User:
     properties:
       birthdate:
@@ -41,6 +57,25 @@ paths:
               $ref: '#/definitions/model.User'
             type: array
       summary: Get all users
+    post:
+      consumes:
+      - application/json
+      description: add user to database
+      parameters:
+      - description: Add user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ""
+      summary: Create an user
+      tags:
+      - user
   /users/{id}:
     get:
       consumes:

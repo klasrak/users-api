@@ -39,6 +39,7 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.3 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -54,3 +55,5 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
+
+require github.com/gin-contrib/cors v1.3.1 // indirect

@@ -3,13 +3,14 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	model "github.com/klasrak/users-api/models"
 	"github.com/klasrak/users-api/rerrors"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 // UserRepository is a repository implementation of service layer UserRepository interface
@@ -51,8 +52,20 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User
 }
 
 // Create a user
-func (r *UserRepository) Create(ctx context.Context, u *model.User) error {
-	return nil
+func (r *UserRepository) Create(ctx context.Context, u *model.User) (*model.User, error) {
+	query := "INSERT INTO users (name, email, cpf, birthdate) VALUES ($1, $2, $3, $4) RETURNING *;"
+
+	if err := r.DB.GetContext(ctx, u, query, u.Name, u.Email, u.Cpf, u.BirthDate); err != nil {
+		if err, ok := err.(*pq.Error); ok && err.Code.Name() == "unique_violation" {
+			log.Printf("could not create user. Reason: %v\n", err.Error())
+			return nil, rerrors.NewConflict("user", err.Detail)
+		}
+
+		log.Printf("failed to create user. Reason: %v\n", err)
+		return nil, rerrors.NewInternal()
+	}
+
+	return u, nil
 }
 
 // Update a user

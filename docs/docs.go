@@ -55,6 +55,35 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "add user to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create an user",
+                "parameters": [
+                    {
+                        "description": "Add user",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.createPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                }
             }
         },
         "/users/{id}": {
@@ -89,6 +118,29 @@ var doc = `{
         }
     },
     "definitions": {
+        "handlers.createPayload": {
+            "type": "object",
+            "required": [
+                "birthdate",
+                "cpf",
+                "email",
+                "name"
+            ],
+            "properties": {
+                "birthdate": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
