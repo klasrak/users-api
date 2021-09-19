@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"time"
+	"net/mail"
 
 	"github.com/google/uuid"
 	model "github.com/klasrak/users-api/models"
@@ -34,7 +34,7 @@ func (s *UserService) GetByID(ctx context.Context, id string) (*model.User, erro
 // Create call repository Create and returns
 func (s *UserService) Create(ctx context.Context, u *model.User) (*model.User, error) {
 
-	if utils.IsUnderage(u.BirthDate, time.Now()) {
+	if utils.IsUnderage(u.BirthDate) {
 		return nil, rerrors.NewBadRequest("underage")
 	}
 
@@ -43,4 +43,39 @@ func (s *UserService) Create(ctx context.Context, u *model.User) (*model.User, e
 	}
 
 	return s.UserRepository.Create(ctx, u)
+}
+
+// Update call repository Update and returns
+func (s *UserService) Update(ctx context.Context, id string, u *model.User) (*model.User, error) {
+
+	if !u.BirthDate.IsZero() {
+		if utils.IsUnderage(u.BirthDate) {
+			return nil, rerrors.NewBadRequest("underage")
+		}
+	}
+
+	if u.Cpf != "" {
+		if !utils.IsBrazilianCPFValid(u.Cpf) {
+			return nil, rerrors.NewBadRequest("cpf invalid")
+		}
+	}
+
+	if u.Email != "" {
+		_, err := mail.ParseAddress(u.Email)
+
+		if err != nil {
+			return nil, rerrors.NewBadRequest("invalid e-mail")
+		}
+
+	}
+
+	uid, err := uuid.Parse(id)
+
+	if err != nil {
+		return nil, rerrors.NewBadRequest("invalid id")
+	}
+
+	u.UID = uid
+
+	return s.UserRepository.Update(ctx, u)
 }

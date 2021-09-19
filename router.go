@@ -42,6 +42,9 @@ func (router *Router) Initialize(c *Container) {
 	// ## POST ##
 	usersGroup.POST("", h.Create)
 
+	// ## PUT ##
+	usersGroup.PUT("/:id", h.Update)
+
 	// ####### inject implementation of gin engine #######
 	router.r = r
 }

@@ -35,6 +35,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "user"
+                ],
                 "summary": "Get all users",
                 "parameters": [
                     {
@@ -98,6 +101,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "user"
+                ],
                 "summary": "Get a single user by ID",
                 "operationId": "string",
                 "parameters": [
@@ -107,6 +113,44 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update user",
+                        "name": "user",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.updatePayload"
+                        }
                     }
                 ],
                 "responses": {
@@ -129,6 +173,23 @@ var doc = `{
                 "email",
                 "name"
             ],
+            "properties": {
+                "birthdate": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.updatePayload": {
+            "type": "object",
             "properties": {
                 "birthdate": {
                     "type": "string"

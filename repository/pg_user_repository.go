@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	model "github.com/klasrak/users-api/models"
 	"github.com/klasrak/users-api/rerrors"
+	"github.com/klasrak/users-api/utils"
 	"github.com/lib/pq"
 )
 
@@ -69,8 +70,37 @@ func (r *UserRepository) Create(ctx context.Context, u *model.User) (*model.User
 }
 
 // Update a user
-func (r *UserRepository) Update(ctx context.Context, u *model.User) error {
-	return nil
+func (r *UserRepository) Update(ctx context.Context, u *model.User) (*model.User, error) {
+
+	query := `
+	UPDATE users u SET
+		name = COALESCE(:name, u."name"),
+		email = COALESCE(:email, u.email),
+		cpf = COALESCE(:cpf, u.cpf),
+		birthdate = COALESCE(:birthdate, u.birthdate)
+	WHERE u.id = :id
+	RETURNING *;
+	`
+
+	user, err := utils.SanitizeUpdateParams(u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	nstmt, err := r.DB.PrepareNamedContext(ctx, query)
+
+	if err != nil {
+		log.Printf("unable to prepare user update query: %v\n", err)
+		return nil, rerrors.NewInternal()
+	}
+
+	if err := nstmt.GetContext(ctx, u, user); err != nil {
+		log.Printf("failed to update user: %v. Reason: %v\n", err, u)
+		return nil, rerrors.NewInternal()
+	}
+
+	return u, err
 }
 
 // Delete a user

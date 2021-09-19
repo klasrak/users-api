@@ -54,8 +54,8 @@ func TimeBetween(a, b time.Time) (year, month, day, hour, min, sec int) {
 }
 
 // IsUnderage is a helper to check if user is underage
-func IsUnderage(birthdate, now time.Time) bool {
-	year, _, _, _, _, _ := TimeBetween(birthdate, now)
+func IsUnderage(birthdate time.Time) bool {
+	year, _, _, _, _, _ := TimeBetween(birthdate, time.Now())
 
 	return year < 18
 }

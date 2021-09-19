@@ -17,9 +17,17 @@ type createPayload struct {
 	Birthdate time.Time `json:"birthdate" binding:"required"`
 }
 
+type updatePayload struct {
+	Name      string    `json:"name,omitempty"`
+	Email     string    `json:"email,omitempty"`
+	Cpf       string    `json:"cpf,omitempty"`
+	Birthdate time.Time `json:"birthdate,omitempty"`
+}
+
 // GetAll godoc
 // @Summary Get all users
 // @Description Get all users
+// @Tags user
 // @Accept  json
 // @Produce  json
 // @Param name query string false "search by name"
@@ -53,6 +61,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // GetByID godoc
 // @Summary Get a single user by ID
 // @Description Get a single user by ID
+// @Tags user
 // @ID string
 // @Accept  json
 // @Produce  json
@@ -108,6 +117,62 @@ func (h *Handler) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	user, err := h.UserService.Create(ctx, u)
+
+	if err != nil {
+		log.Printf("failed to create user: %v\n", err.Error())
+
+		c.JSON(rerrors.Status(err), gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, user)
+}
+
+// Update godoc
+// @Summary Update user
+// @Description Update user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Param user body updatePayload false "Update user"
+// @Success 200 {object} model.User
+// @Router /users/{id} [put]
+func (h *Handler) Update(c *gin.Context) {
+	var req updatePayload
+
+	id := c.Param("id")
+
+	if id == "" {
+		err := rerrors.NewBadRequest("invalid id")
+		log.Printf("invalid ID: %v\n", err)
+
+		c.JSON(err.Status(), gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	// Bind incoming json to struct and check for validation errors
+	ok := bindData(c, &req)
+
+	if !ok {
+		log.Println("failed to bind data")
+		return
+	}
+
+	u := &model.User{
+		Name:      req.Name,
+		Email:     req.Email,
+		Cpf:       req.Cpf,
+		BirthDate: req.Birthdate,
+	}
+
+	ctx := c.Request.Context()
+
+	user, err := h.UserService.Update(ctx, id, u)
 
 	if err != nil {
 		log.Printf("failed to create user: %v\n", err.Error())

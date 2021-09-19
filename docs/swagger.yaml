@@ -16,6 +16,17 @@ definitions:
     - email
     - name
     type: object
+  handlers.updatePayload:
+    properties:
+      birthdate:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+    type: object
   model.User:
     properties:
       birthdate:
@@ -57,6 +68,8 @@ paths:
               $ref: '#/definitions/model.User'
             type: array
       summary: Get all users
+      tags:
+      - user
     post:
       consumes:
       - application/json
@@ -98,4 +111,31 @@ paths:
           schema:
             $ref: '#/definitions/model.User'
       summary: Get a single user by ID
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update user
+        in: body
+        name: user
+        schema:
+          $ref: '#/definitions/handlers.updatePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Update user
+      tags:
+      - user
 swagger: "2.0"
