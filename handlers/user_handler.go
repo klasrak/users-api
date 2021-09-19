@@ -14,7 +14,7 @@ type createPayload struct {
 	Name      string    `json:"name" binding:"required"`
 	Email     string    `json:"email" binding:"required,email"`
 	Cpf       string    `json:"cpf" binding:"required"`
-	Birthdate time.Time `json:"birthdate" binding:"required" time_format:"2006-01-02"`
+	Birthdate time.Time `json:"birthdate" binding:"required"`
 }
 
 // GetAll godoc

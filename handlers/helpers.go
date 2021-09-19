@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
+	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -40,6 +44,15 @@ func bindData(c *gin.Context, req interface{}) bool {
 				"error":       err,
 				"invalidArgs": invalidArgs,
 			})
+			return false
+		}
+
+		if strings.Contains(err.Error(), "parsing time") {
+			log.Printf("Error binding data: time should be in RFC3339 format: %v\n", err)
+
+			err = rerrors.NewBadRequest(fmt.Sprintf("date must be in RFC3339 format: %s", time.RFC3339))
+
+			c.JSON(http.StatusBadRequest, err)
 			return false
 		}
 
