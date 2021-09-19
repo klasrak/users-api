@@ -136,6 +136,7 @@ var doc = `{
                     "user"
                 ],
                 "summary": "Update user",
+                "operationId": "string",
                 "parameters": [
                     {
                         "type": "string",
@@ -174,6 +175,7 @@ var doc = `{
                     "user"
                 ],
                 "summary": "Delete user",
+                "operationId": "string",
                 "parameters": [
                     {
                         "type": "string",

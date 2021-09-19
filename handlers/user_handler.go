@@ -134,6 +134,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Summary Update user
 // @Description Update user
 // @Tags user
+// @ID string
 // @Accept  json
 // @Produce  json
 // @Param id path string true "User ID"
@@ -190,6 +191,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Summary Delete user
 // @Description Delete user
 // @Tags user
+// @ID string
 // @Accept  json
 // @Produce  json
 // @Param id path string true "User ID"

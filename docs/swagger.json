@@ -121,6 +121,7 @@
                     "user"
                 ],
                 "summary": "Update user",
+                "operationId": "string",
                 "parameters": [
                     {
                         "type": "string",
@@ -159,6 +160,7 @@
                     "user"
                 ],
                 "summary": "Delete user",
+                "operationId": "string",
                 "parameters": [
                     {
                         "type": "string",

@@ -96,6 +96,7 @@ paths:
       consumes:
       - application/json
       description: Delete user
+      operationId: string
       parameters:
       - description: User ID
         in: path
@@ -135,6 +136,7 @@ paths:
       consumes:
       - application/json
       description: Update user
+      operationId: string
       parameters:
       - description: User ID
         in: path
