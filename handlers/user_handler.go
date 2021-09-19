@@ -79,13 +79,13 @@ func (h *Handler) GetByID(c *gin.Context) {
 }
 
 // Create godoc
-// @Summary Create an user
-// @Description add user to database
+// @Summary Create user
+// @Description Add user to database
 // @Tags user
 // @Accept  json
 // @Produce  json
 // @Param user body createPayload true "Add user"
-// @Success 201
+// @Success 201 {object} model.User
 // @Router /users [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req createPayload

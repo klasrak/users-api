@@ -57,7 +57,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "add user to database",
+                "description": "Add user to database",
                 "consumes": [
                     "application/json"
                 ],
@@ -67,7 +67,7 @@ var doc = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Create an user",
+                "summary": "Create user",
                 "parameters": [
                     {
                         "description": "Add user",
@@ -81,7 +81,10 @@ var doc = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": ""
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
                     }
                 }
             }

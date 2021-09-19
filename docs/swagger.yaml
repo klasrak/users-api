@@ -60,7 +60,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: add user to database
+      description: Add user to database
       parameters:
       - description: Add user
         in: body
@@ -72,8 +72,10 @@ paths:
       - application/json
       responses:
         "201":
-          description: ""
-      summary: Create an user
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Create user
       tags:
       - user
   /users/{id}:
