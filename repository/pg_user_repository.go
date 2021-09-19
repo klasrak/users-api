@@ -59,7 +59,7 @@ func (r *UserRepository) Create(ctx context.Context, u *model.User) (*model.User
 	if err := r.DB.GetContext(ctx, u, query, u.Name, u.Email, u.Cpf, u.BirthDate); err != nil {
 		if err, ok := err.(*pq.Error); ok && err.Code.Name() == "unique_violation" {
 			log.Printf("could not create user. Reason: %v\n", err.Error())
-			return nil, rerrors.NewConflict("user", err.Detail)
+			return nil, rerrors.NewConflict("user", "created", err.Detail)
 		}
 
 		log.Printf("failed to create user. Reason: %v\n", err)
@@ -96,7 +96,15 @@ func (r *UserRepository) Update(ctx context.Context, u *model.User) (*model.User
 	}
 
 	if err := nstmt.GetContext(ctx, u, user); err != nil {
-		log.Printf("failed to update user: %v. Reason: %v\n", err, u)
+		if err, ok := err.(*pq.Error); ok && err.Code.Name() != "unique_violation" {
+			log.Printf("could not update user. Reason: %v\n", err.Error())
+			return nil, rerrors.NewConflict("user", "updated", err.Detail)
+		}
+
+		if strings.Contains(err.Error(), "no rows") {
+			return nil, rerrors.NewNotFound("user", u.UID.String())
+		}
+
 		return nil, rerrors.NewInternal()
 	}
 
@@ -110,7 +118,8 @@ func (r *UserRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
-		return err
+		log.Printf("failed to delete user. Reason: %v\n", err)
+		return rerrors.NewInternal()
 	}
 
 	return nil

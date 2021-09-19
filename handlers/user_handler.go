@@ -175,7 +175,7 @@ func (h *Handler) Update(c *gin.Context) {
 	user, err := h.UserService.Update(ctx, id, u)
 
 	if err != nil {
-		log.Printf("failed to create user: %v\n", err.Error())
+		log.Printf("failed to update user: %v\n", err.Error())
 
 		c.JSON(rerrors.Status(err), gin.H{
 			"error": err,
@@ -183,7 +183,7 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusOK, user)
 }
 
 // Delete godoc
@@ -213,9 +213,9 @@ func (h *Handler) Delete(c *gin.Context) {
 	err := h.UserService.Delete(ctx, id)
 
 	if err != nil {
-		log.Printf("failed to create user: %v\n", err.Error())
+		log.Printf("failed to delete user: %v\n", err.Error())
 
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(rerrors.Status(err), gin.H{
 			"error": err,
 		})
 

@@ -113,9 +113,9 @@ func NewForbidden(reason string) *Error {
 }
 
 // NewConflict to create 409 erros
-func NewConflict(name string, value string) *Error {
+func NewConflict(resource, operation, value string) *Error {
 	return &Error{
 		Type:    Conflict,
-		Message: fmt.Sprintf("resource: %v not created: %v", name, value),
+		Message: fmt.Sprintf("resource: %s not %s: %v", resource, operation, value),
 	}
 }
