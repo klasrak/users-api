@@ -769,5 +769,41 @@ func TestUserHandler(t *testing.T) {
 			assert.Equal(t, http.StatusNoContent, rr.Code)
 			mockUserService.AssertExpectations(t)
 		})
+
+		t.Run("Error", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			uid, err := uuid.NewRandom()
+			assert.NoError(t, err)
+
+			mockErrorResponse := rerrors.NewInternal()
+
+			mockUserService.On("Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String()).Return(mockErrorResponse)
+
+			rr := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("http://localhost:8080/api/v1/users/%s", uid.String()), nil)
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String())
+			mockUserService.AssertNumberOfCalls(t, "Delete", 1)
+
+			assert.Equal(t, http.StatusInternalServerError, rr.Code)
+			mockUserService.AssertExpectations(t)
+		})
 	})
 }
