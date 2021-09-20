@@ -23,3 +23,21 @@ func TestTimeBetween(t *testing.T) {
 	assert.Equal(0, sec)
 
 }
+
+func TestIsUnderage(t *testing.T) {
+	t.Run("True", func(t *testing.T) {
+		birthdate := time.Date(2006, 1, 1, 1, 1, 1, 1, time.UTC)
+
+		isUnderage := IsUnderage(birthdate)
+
+		assert.True(t, isUnderage)
+	})
+
+	t.Run("False", func(t *testing.T) {
+		birthdate := time.Date(1993, 1, 1, 1, 1, 1, 1, time.UTC)
+
+		isUnderage := IsUnderage(birthdate)
+
+		assert.False(t, isUnderage)
+	})
+}
