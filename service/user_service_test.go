@@ -404,5 +404,166 @@ func TestUserService(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, userResponse, us)
 		})
+
+		t.Run("Error unique violation email", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewConflict("user", "updated", "unique_violation_email")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Update", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertCalled(t, "Update", mock.AnythingOfType("*context.emptyCtx"), user)
+			mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Error unique violation cpf", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewConflict("user", "updated", "unique_violation_cpf")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Update", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertCalled(t, "Update", mock.AnythingOfType("*context.emptyCtx"), user)
+			mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Internal Server Error", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewInternal()
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Update", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertCalled(t, "Update", mock.AnythingOfType("*context.emptyCtx"), user)
+			mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Bad request underage", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Now(),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("underage")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertNotCalled(t, "Update")
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Bad request invalid cpf", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "invalid_cpf",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("cpf invalid")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertNotCalled(t, "Update")
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
 	})
 }
