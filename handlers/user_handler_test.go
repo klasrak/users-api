@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -340,6 +341,170 @@ func TestUserHandler(t *testing.T) {
 			mockUserService.AssertNumberOfCalls(t, "GetByID", 1)
 
 			assert.Equal(t, http.StatusNotFound, rr.Code)
+			mockUserService.AssertExpectations(t)
+		})
+	})
+
+	t.Run("Create", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			uid, err := uuid.NewRandom()
+			assert.NoError(t, err)
+
+			u := &model.User{
+				Name:      "John Doe",
+				Email:     "test@mail.com",
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(2003, 1, 1, 1, 1, 1, 1, time.UTC),
+			}
+
+			createdUser := &model.User{
+				UID:       uid,
+				Email:     u.Email,
+				Cpf:       u.Cpf,
+				BirthDate: u.BirthDate,
+			}
+
+			mockUserService.On("Create", mock.AnythingOfType("*context.emptyCtx"), u).Return(createdUser, nil)
+
+			rr := httptest.NewRecorder()
+
+			body, err := json.Marshal(gin.H{
+				"name":      u.Name,
+				"email":     u.Email,
+				"cpf":       u.Cpf,
+				"birthdate": u.BirthDate,
+			})
+
+			assert.NoError(t, err)
+
+			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/api/v1/users", bytes.NewBuffer(body))
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "Create", mock.AnythingOfType("*context.emptyCtx"), u)
+			mockUserService.AssertNumberOfCalls(t, "Create", 1)
+
+			u.UID = uid
+			respBody, _ := json.Marshal(createdUser)
+
+			assert.Equal(t, http.StatusCreated, rr.Code)
+			assert.Equal(t, respBody, rr.Body.Bytes())
+			mockUserService.AssertExpectations(t)
+		})
+
+		t.Run("Error underage", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			u := &model.User{
+				Name:      "John Doe",
+				Email:     "test@mail.com",
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("underage")
+
+			mockUserService.On("Create", mock.AnythingOfType("*context.emptyCtx"), u).Return(nil, mockErrorResponse)
+
+			rr := httptest.NewRecorder()
+
+			body, err := json.Marshal(gin.H{
+				"name":      u.Name,
+				"email":     u.Email,
+				"cpf":       u.Cpf,
+				"birthdate": u.BirthDate,
+			})
+
+			assert.NoError(t, err)
+
+			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/api/v1/users", bytes.NewBuffer(body))
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "Create", mock.AnythingOfType("*context.emptyCtx"), u)
+			mockUserService.AssertNumberOfCalls(t, "Create", 1)
+
+			assert.Equal(t, http.StatusBadRequest, rr.Code)
+			mockUserService.AssertExpectations(t)
+		})
+
+		t.Run("Error invalid cpf", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			u := &model.User{
+				Name:      "John Doe",
+				Email:     "test@mail.com",
+				Cpf:       "invalid_cpf",
+				BirthDate: time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("cpf invalid")
+
+			mockUserService.On("Create", mock.AnythingOfType("*context.emptyCtx"), u).Return(nil, mockErrorResponse)
+
+			rr := httptest.NewRecorder()
+
+			body, err := json.Marshal(gin.H{
+				"name":      u.Name,
+				"email":     u.Email,
+				"cpf":       u.Cpf,
+				"birthdate": u.BirthDate,
+			})
+
+			assert.NoError(t, err)
+
+			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/api/v1/users", bytes.NewBuffer(body))
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "Create", mock.AnythingOfType("*context.emptyCtx"), u)
+			mockUserService.AssertNumberOfCalls(t, "Create", 1)
+
+			assert.Equal(t, http.StatusBadRequest, rr.Code)
 			mockUserService.AssertExpectations(t)
 		})
 	})
