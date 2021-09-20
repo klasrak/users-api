@@ -305,5 +305,63 @@ func TestUserService(t *testing.T) {
 
 			mockUserRepository.AssertExpectations(t)
 		})
+
+		t.Run("Bad request underage", func(t *testing.T) {
+			user := &model.User{
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Now(),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("underage")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Create(ctx, user)
+
+			mockUserRepository.AssertNotCalled(t, "Create")
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Bad request invalid cpf", func(t *testing.T) {
+			user := &model.User{
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "invalid_cpf",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("cpf invalid")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Create(ctx, user)
+
+			mockUserRepository.AssertNotCalled(t, "Create")
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
 	})
 }
