@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
@@ -23,16 +22,31 @@ type UserRepository struct {
 func (r *UserRepository) GetAll(ctx context.Context, name string) ([]model.User, error) {
 	users := []model.User{}
 
-	query := "SELECT * FROM users u %s;"
+	query := "SELECT * FROM users u;"
 
-	if name != "" {
-		query = fmt.Sprintf(query, fmt.Sprintf(`WHERE u.name LIKE '%%%s%%' `, name))
-	} else {
-		query = strings.Trim(fmt.Sprintf(query, ""), "")
+	rows, err := r.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return users, rerrors.NewInternal()
 	}
 
-	if err := r.DB.SelectContext(ctx, &users, query); err != nil {
+	defer rows.Close()
 
+	for rows.Next() {
+		user := model.User{}
+
+		if err := rows.Scan(&user.UID, &user.Name, &user.Email, &user.Cpf, &user.BirthDate); err != nil {
+			return users, rerrors.NewInternal()
+		}
+
+		if name != "" && !strings.Contains(user.Name, name) {
+			continue
+		} else {
+			users = append(users, user)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
 		return users, rerrors.NewInternal()
 	}
 
