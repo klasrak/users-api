@@ -118,6 +118,10 @@ func (r *UserRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.DB.ExecContext(ctx, query, id)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "no rows") {
+			return rerrors.NewNotFound("user", id)
+		}
+
 		log.Printf("failed to delete user. Reason: %v\n", err)
 		return rerrors.NewInternal()
 	}

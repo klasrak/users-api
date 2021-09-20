@@ -597,4 +597,26 @@ func TestUserService(t *testing.T) {
 			mockUserRepository.AssertExpectations(t)
 		})
 	})
+
+	t.Run("Delete", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String()).Return(nil)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			err := userService.Delete(ctx, uid.String())
+
+			mockUserRepository.AssertCalled(t, "Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String())
+			mockUserRepository.AssertNumberOfCalls(t, "Delete", 1)
+
+			assert.NoError(t, err)
+		})
+	})
 }
