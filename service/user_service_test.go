@@ -179,4 +179,39 @@ func TestUserService(t *testing.T) {
 			assert.Equal(t, user, us)
 		})
 	})
+
+	t.Run("Create", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			user := &model.User{
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			userMockResponse := user
+			uid, _ := uuid.NewRandom()
+			userMockResponse.UID = uid
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Create", mock.AnythingOfType("*context.emptyCtx"), user).Return(userMockResponse, nil)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Create(ctx, user)
+
+			mockUserRepository.AssertCalled(t, "Create", mock.AnythingOfType("*context.emptyCtx"), user)
+			mockUserRepository.AssertNumberOfCalls(t, "Create", 1)
+
+			assert.NoError(t, err)
+			assert.Equal(t, userMockResponse, us)
+
+			mockUserRepository.AssertExpectations(t)
+
+		})
+	})
 }
