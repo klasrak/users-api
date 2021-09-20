@@ -26,12 +26,14 @@ type updatePayload struct {
 
 // GetAll godoc
 // @Summary Get all users
-// @Description Get all users
+// @Description Fetch all users from database. Can filter by name.
 // @Tags user
 // @Accept  json
 // @Produce  json
 // @Param name query string false "search by name"
 // @Success 200 {object} []model.User
+// @Success 204
+// @Failure 500 {object} rerrors.Error "Internal Server Error"
 // @Router /users [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -67,6 +69,8 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Produce  json
 // @Param id path string true "User ID"
 // @Success 200 {object} model.User
+// @Failure 400 {object} rerrors.Error "Bad Request. Invalid ID"
+// @Failure 404 {object} rerrors.Error "User Not Found"
 // @Router /users/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -95,6 +99,9 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Produce  json
 // @Param user body createPayload true "Add user"
 // @Success 201 {object} model.User
+// @Failure 400 {object} rerrors.Error "Validation error"
+// @Failure 409 {object} rerrors.Error "Unique Violation"
+// @Failure 500 {object} rerrors.Error "Internal Server Error"
 // @Router /users [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req createPayload
@@ -140,6 +147,9 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param id path string true "User ID"
 // @Param user body updatePayload false "Update user"
 // @Success 200 {object} model.User
+// @Failure 400 {object} rerrors.Error "Validation error"
+// @Failure 409 {object} rerrors.Error "Unique Violation"
+// @Failure 500 {object} rerrors.Error "Internal Server Error"
 // @Router /users/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	var req updatePayload
@@ -196,6 +206,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Produce  json
 // @Param id path string true "User ID"
 // @Success 204
+// @Failure 404 {object} rerrors.Error "User Not Found"
 // @Router /users/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")

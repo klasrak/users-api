@@ -13,7 +13,7 @@
     "paths": {
         "/users": {
             "get": {
-                "description": "Get all users",
+                "description": "Fetch all users from database. Can filter by name.",
                 "consumes": [
                     "application/json"
                 ],
@@ -40,6 +40,15 @@
                             "items": {
                                 "$ref": "#/definitions/model.User"
                             }
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
                         }
                     }
                 }
@@ -73,6 +82,24 @@
                         "schema": {
                             "$ref": "#/definitions/model.User"
                         }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Unique Violation",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
                     }
                 }
             }
@@ -105,6 +132,18 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request. Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
                         }
                     }
                 }
@@ -145,6 +184,24 @@
                         "schema": {
                             "$ref": "#/definitions/model.User"
                         }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Unique Violation",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
                     }
                 }
             },
@@ -173,6 +230,12 @@
                 "responses": {
                     "204": {
                         "description": ""
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rerrors.Error"
+                        }
                     }
                 }
             }
@@ -235,6 +298,17 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "rerrors.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

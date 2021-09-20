@@ -40,6 +40,13 @@ definitions:
       name:
         type: string
     type: object
+  rerrors.Error:
+    properties:
+      message:
+        type: string
+      type:
+        type: string
+    type: object
 info:
   contact: {}
   description: This is a Users crud server.
@@ -52,7 +59,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all users
+      description: Fetch all users from database. Can filter by name.
       parameters:
       - description: search by name
         in: query
@@ -67,6 +74,12 @@ paths:
             items:
               $ref: '#/definitions/model.User'
             type: array
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rerrors.Error'
       summary: Get all users
       tags:
       - user
@@ -88,6 +101,18 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rerrors.Error'
+        "409":
+          description: Unique Violation
+          schema:
+            $ref: '#/definitions/rerrors.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rerrors.Error'
       summary: Create user
       tags:
       - user
@@ -108,6 +133,10 @@ paths:
       responses:
         "204":
           description: ""
+        "404":
+          description: User Not Found
+          schema:
+            $ref: '#/definitions/rerrors.Error'
       summary: Delete user
       tags:
       - user
@@ -129,6 +158,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request. Invalid ID
+          schema:
+            $ref: '#/definitions/rerrors.Error'
+        "404":
+          description: User Not Found
+          schema:
+            $ref: '#/definitions/rerrors.Error'
       summary: Get a single user by ID
       tags:
       - user
@@ -155,6 +192,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/rerrors.Error'
+        "409":
+          description: Unique Violation
+          schema:
+            $ref: '#/definitions/rerrors.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rerrors.Error'
       summary: Update user
       tags:
       - user
