@@ -565,5 +565,36 @@ func TestUserService(t *testing.T) {
 
 			mockUserRepository.AssertExpectations(t)
 		})
+
+		t.Run("Bad request invalid email", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     "invalid_email",
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewBadRequest("invalid e-mail")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertNotCalled(t, "Update")
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
 	})
 }
