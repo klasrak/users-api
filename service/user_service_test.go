@@ -221,7 +221,38 @@ func TestUserService(t *testing.T) {
 				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
 			}
 
-			mockErrorResponse := rerrors.NewConflict("user", "created", "unique_violation")
+			mockErrorResponse := rerrors.NewConflict("user", "created", "unique_violation_email")
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Create", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Create(ctx, user)
+
+			mockUserRepository.AssertCalled(t, "Create", mock.AnythingOfType("*context.emptyCtx"), user)
+			mockUserRepository.AssertNumberOfCalls(t, "Create", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Error unique violation cpf", func(t *testing.T) {
+			user := &model.User{
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewConflict("user", "created", "unique_violation_cpf")
 
 			mockUserRepository := new(mocks.MockUserRepository)
 			mockUserRepository.On("Create", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
