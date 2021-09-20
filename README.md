@@ -351,7 +351,6 @@ curl --request GET \
 ]
 ```
 <br/>
-<br/>
 
 ## **Tests**
 
@@ -603,11 +602,6 @@ PASS
 coverage: 78.1% of statements
 ok  	github.com/klasrak/users-api/utils	0.389s	coverage: 78.1% of statements
 ```
-
-
-## **Project purpose**
-
-This project was (and will continue to be) developed for the purpose of studies. Any feedback, positive or not, will be very welcome and will be taken into consideration.
 
 ## **License**
 
