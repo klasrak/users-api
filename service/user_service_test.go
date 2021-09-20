@@ -160,8 +160,9 @@ func TestUserService(t *testing.T) {
 
 			user := &model.User{}
 
+			mockErrorResponse := rerrors.NewNotFound("id", uid.String())
 			mockUserRepository := new(mocks.MockUserRepository)
-			mockUserRepository.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), uid).Return(user, rerrors.NewNotFound("id", uid.String()))
+			mockUserRepository.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), uid).Return(user, mockErrorResponse)
 
 			userService := &UserService{
 				UserRepository: mockUserRepository,
@@ -175,7 +176,7 @@ func TestUserService(t *testing.T) {
 			mockUserRepository.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), uid)
 
 			assert.Error(t, err)
-			assert.Equal(t, err, rerrors.NewNotFound("id", uid.String()))
+			assert.Equal(t, mockErrorResponse, err)
 			assert.Equal(t, user, us)
 		})
 	})
@@ -504,6 +505,36 @@ func TestUserService(t *testing.T) {
 			mockUserRepository.AssertExpectations(t)
 		})
 
+		t.Run("Error not found", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC),
+			}
+
+			mockErrorResponse := rerrors.NewNotFound("user", uid.String())
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Update", mock.AnythingOfType("*context.emptyCtx"), user).Return(nil, mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), user)
+
+			mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
+			mockUserRepository.AssertCalled(t, "Update", mock.AnythingOfType("*context.emptyCtx"), user)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			assert.Nil(t, us)
+		})
+
 		t.Run("Bad request underage", func(t *testing.T) {
 			uid, _ := uuid.NewRandom()
 			user := &model.User{
@@ -617,6 +648,55 @@ func TestUserService(t *testing.T) {
 			mockUserRepository.AssertNumberOfCalls(t, "Delete", 1)
 
 			assert.NoError(t, err)
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Error not found", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			mockErrorResponse := rerrors.NewNotFound("user", uid.String())
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String()).Return(mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			err := userService.Delete(ctx, uid.String())
+
+			mockUserRepository.AssertCalled(t, "Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String())
+			mockUserRepository.AssertNumberOfCalls(t, "Delete", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			mockUserRepository.AssertExpectations(t)
+		})
+
+		t.Run("Internal Server Error", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			mockErrorResponse := rerrors.NewInternal()
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String()).Return(mockErrorResponse)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			err := userService.Delete(ctx, uid.String())
+
+			mockUserRepository.AssertCalled(t, "Delete", mock.AnythingOfType("*context.emptyCtx"), uid.String())
+			mockUserRepository.AssertNumberOfCalls(t, "Delete", 1)
+
+			assert.Error(t, err)
+			assert.Equal(t, mockErrorResponse, err)
+			mockUserRepository.AssertExpectations(t)
 		})
 	})
 }
