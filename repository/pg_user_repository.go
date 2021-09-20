@@ -59,7 +59,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.User
 
 	query := "SELECT * FROM users WHERE id=$1;"
 
-	if err := r.DB.Get(user, query, id); err != nil {
+	if err := r.DB.GetContext(ctx, user, query, id); err != nil {
 		return user, rerrors.NewNotFound("id", id.String())
 	}
 
