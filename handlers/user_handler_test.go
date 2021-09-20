@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -100,6 +101,7 @@ func TestUserHandler(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, rr.Code)
 			assert.Equal(t, respBody, rr.Body.Bytes())
+			mockUserService.AssertExpectations(t)
 		})
 
 		t.Run("Success with name filter", func(t *testing.T) {
@@ -152,6 +154,7 @@ func TestUserHandler(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, rr.Code)
 			assert.Equal(t, respBody, rr.Body.Bytes())
+			mockUserService.AssertExpectations(t)
 		})
 
 		t.Run("Success no content", func(t *testing.T) {
@@ -185,6 +188,7 @@ func TestUserHandler(t *testing.T) {
 			mockUserService.AssertCalled(t, "GetAll", mock.AnythingOfType("*context.emptyCtx"), "")
 
 			assert.Equal(t, http.StatusNoContent, rr.Code)
+			mockUserService.AssertExpectations(t)
 		})
 
 		t.Run("Error", func(t *testing.T) {
@@ -220,6 +224,123 @@ func TestUserHandler(t *testing.T) {
 			mockUserService.AssertCalled(t, "GetAll", mock.AnythingOfType("*context.emptyCtx"), "")
 
 			assert.Equal(t, http.StatusInternalServerError, rr.Code)
+			mockUserService.AssertExpectations(t)
+		})
+	})
+
+	t.Run("GetByID", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			uid, err := uuid.NewRandom()
+			assert.NoError(t, err)
+
+			user := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "123.456.789-10",
+				BirthDate: time.Date(2003, 1, 1, 1, 1, 1, 1, time.UTC),
+			}
+
+			mockUserService.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), uid.String()).Return(user, nil)
+
+			rr := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8080/api/v1/users/%s", uid.String()), nil)
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), uid.String())
+			mockUserService.AssertNumberOfCalls(t, "GetByID", 1)
+
+			respBody, _ := json.Marshal(user)
+
+			assert.Equal(t, http.StatusOK, rr.Code)
+			assert.Equal(t, respBody, rr.Body.Bytes())
+			mockUserService.AssertExpectations(t)
+		})
+
+		t.Run("Invalid ID", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			mockErrorResponse := rerrors.NewBadRequest("invalid id")
+
+			mockUserService.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), "invalid_id").Return(nil, mockErrorResponse)
+
+			rr := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8080/api/v1/users/%s", "invalid_id"), nil)
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), "invalid_id")
+			mockUserService.AssertNumberOfCalls(t, "GetByID", 1)
+
+			assert.Equal(t, http.StatusBadRequest, rr.Code)
+			mockUserService.AssertExpectations(t)
+		})
+
+		t.Run("Error ID not found", func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+
+			h := &Handler{
+				UserService: mockUserService,
+			}
+
+			c := &MockedContainer{
+				Handler: h,
+			}
+
+			router := &MockedRouter{}
+
+			router.Initialize(c)
+
+			uid, err := uuid.NewRandom()
+			assert.NoError(t, err)
+
+			mockErrorResponse := rerrors.NewNotFound("id", uid.String())
+
+			mockUserService.On("GetByID", mock.AnythingOfType("*context.emptyCtx"), "invalid_id").Return(nil, mockErrorResponse)
+
+			rr := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8080/api/v1/users/%s", "invalid_id"), nil)
+
+			request.Header.Set("Content-Type", "application/json")
+
+			router.r.ServeHTTP(rr, request)
+
+			mockUserService.AssertCalled(t, "GetByID", mock.AnythingOfType("*context.emptyCtx"), "invalid_id")
+			mockUserService.AssertNumberOfCalls(t, "GetByID", 1)
+
+			assert.Equal(t, http.StatusNotFound, rr.Code)
+			mockUserService.AssertExpectations(t)
 		})
 	})
 }
