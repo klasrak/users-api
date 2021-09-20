@@ -364,4 +364,45 @@ func TestUserService(t *testing.T) {
 			mockUserRepository.AssertExpectations(t)
 		})
 	})
+
+	t.Run("Update", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+			oldCpf := "313.716.772-80"
+			oldBirthdate := time.Date(1990, 1, 1, 1, 1, 1, 0, time.UTC)
+
+			userUpdateParams := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "",
+				BirthDate: time.Time{},
+			}
+
+			userResponse := &model.User{
+				UID:       uid,
+				Name:      userUpdateParams.Name,
+				Email:     userUpdateParams.Email,
+				Cpf:       oldCpf,
+				BirthDate: oldBirthdate,
+			}
+
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("Update", mock.AnythingOfType("*context.emptyCtx"), userUpdateParams).Return(userResponse, nil)
+
+			userService := &UserService{
+				UserRepository: mockUserRepository,
+			}
+
+			ctx := context.Background()
+
+			us, err := userService.Update(ctx, uid.String(), userUpdateParams)
+
+			mockUserRepository.AssertCalled(t, "Update", mock.AnythingOfType("*context.emptyCtx"), userUpdateParams)
+			mockUserRepository.AssertNumberOfCalls(t, "Update", 1)
+
+			assert.NoError(t, err)
+			assert.Equal(t, userResponse, us)
+		})
+	})
 }
