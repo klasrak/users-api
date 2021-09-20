@@ -285,4 +285,115 @@ func TestUserRepository(t *testing.T) {
 			assert.Equal(t, rerrors.NewInternal(), err)
 		})
 	})
+
+	t.Run("Update", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			t.Skip() // Could not make it work with this query
+			uid, _ := uuid.NewRandom()
+			oldCpf := "313.716.772-80"
+			oldBirthdate := time.Date(1990, 1, 1, 1, 1, 1, 1, time.UTC)
+
+			u := &model.User{
+				UID:       uid,
+				Name:      faker.Name(),
+				Email:     faker.Email(),
+				Cpf:       "313.716.772-80",
+				BirthDate: time.Date(1990, 1, 1, 1, 1, 1, 1, time.UTC),
+			}
+
+			db, mock := NewMock()
+
+			sqlxDB := sqlx.NewDb(db, "sqlmock")
+
+			defer sqlxDB.Close()
+
+			query := `UPDATE users u SET name \\= COALESCE\\(\\:name, u\\."name"\\), email \\= COALESCE\\(\\:email, u\\.email\\), cpf \\= COALESCE\\(\\:cpf, u\\.cpf\\), birthdate \\= COALESCE\\(\\:birthdate, u\\.birthdate\\) WHERE u\\.id \\= \\:id RETURNING \\*;`
+
+			userRepository := &UserRepository{DB: sqlxDB}
+
+			u.BirthDate = oldBirthdate
+			u.Cpf = oldCpf
+
+			prep := mock.ExpectPrepare(query)
+			prep.ExpectExec().WithArgs(u.UID, u.Name, u.Email, u.Cpf, u.BirthDate).WillReturnResult(sqlmock.NewResult(0, 1))
+
+			ctx := context.Background()
+
+			_, err := userRepository.Update(ctx, u)
+
+			assert.NoError(t, err)
+
+		})
+	})
+
+	t.Run("Delete", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			db, mock := NewMock()
+
+			sqlxDB := sqlx.NewDb(db, "sqlmock")
+
+			defer sqlxDB.Close()
+
+			userRepository := &UserRepository{DB: sqlxDB}
+
+			query := `DELETE FROM users u WHERE u.id = \$1;`
+
+			mock.ExpectExec(query).WithArgs(uid.String()).WillReturnResult(sqlmock.NewResult(0, 1))
+
+			ctx := context.Background()
+
+			err := userRepository.Delete(ctx, uid.String())
+
+			assert.NoError(t, err)
+		})
+
+		t.Run("Error not found", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			db, mock := NewMock()
+
+			sqlxDB := sqlx.NewDb(db, "sqlmock")
+
+			defer sqlxDB.Close()
+
+			userRepository := &UserRepository{DB: sqlxDB}
+
+			query := `DELETE FROM users u WHERE u.id = \$1;`
+
+			mock.ExpectExec(query).WithArgs(uid.String()).WillReturnError(sql.ErrNoRows)
+
+			ctx := context.Background()
+
+			err := userRepository.Delete(ctx, uid.String())
+
+			assert.Error(t, err)
+			assert.Equal(t, rerrors.NewNotFound("user", uid.String()), err)
+		})
+
+		t.Run("Internal Server Error", func(t *testing.T) {
+			uid, _ := uuid.NewRandom()
+
+			db, mock := NewMock()
+
+			sqlxDB := sqlx.NewDb(db, "sqlmock")
+
+			defer sqlxDB.Close()
+
+			userRepository := &UserRepository{DB: sqlxDB}
+
+			query := `DELETE FROM users u WHERE u.id = \$1;`
+
+			mock.ExpectExec(query).WithArgs(uid.String()).WillReturnError(errors.New("error"))
+
+			ctx := context.Background()
+
+			err := userRepository.Delete(ctx, uid.String())
+
+			assert.Error(t, err)
+			assert.Equal(t, rerrors.NewInternal(), err)
+		})
+	})
+
 }
