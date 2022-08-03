@@ -17,7 +17,7 @@ FROM base as dev
 WORKDIR /usr/src/users-api
 
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
-RUN go get -u github.com/cosmtrek/air
+RUN go install github.com/cosmtrek/air@latest
 
 EXPOSE 8080
 EXPOSE 2345
